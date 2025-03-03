@@ -77,7 +77,8 @@ interface ApiData {
 }
 
 function App() {
-  const [data, setData] = useState<ApiData | null>(null);
+// Change this line:
+  const [data, setData] = useState<ApiData[] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -93,13 +94,7 @@ function App() {
 
         const result = await response.json();
         console.log("API Response:", result);
-
-        // Check if the API returns an array or a single object
-        //if (Array.isArray(result)) {
-          //setData(result[0]); // Take the first item if it's an array
-        //} else {
-        setData(result);
-        //}
+        setData(Array.isArray(result) ? result : [result]);
       } catch (err) {
         console.error("Fetch error:", err);
         setError(err instanceof Error ? err.message : 'An unknown error occurred');
@@ -132,73 +127,79 @@ function App() {
           {loading && <p>Loading game data...</p>}
           {error && <p className="error">Error: {error}</p>}
 
-          {/* Debug section */}
-          {data && (
-              <div className="debug-section" style={{
-                textAlign: 'left',
-                maxWidth: '800px',
-                margin: '20px auto',
-                backgroundColor: '#f5f5f5',
-                padding: '20px',
-                borderRadius: '8px'
-              }}>
-                <h3>Raw API Response:</h3>
-                <pre style={{
-                  overflow: 'auto',
-                  maxHeight: '200px',
-                  background: '#e0e0e0',
-                  padding: '10px',
-                  borderRadius: '4px'
-                }}>
-            {JSON.stringify(data, null, 2)}
-          </pre>
-              </div>
-          )}
+          {/*/!* Debug section *!/*/}
+          {/*{data && data.length > 0 && (*/}
+          {/*    <div className="debug-section" style={{*/}
+          {/*      textAlign: 'left',*/}
+          {/*      maxWidth: '800px',*/}
+          {/*      margin: '20px auto',*/}
+          {/*      backgroundColor: '#f5f5f5',*/}
+          {/*      padding: '20px',*/}
+          {/*      borderRadius: '8px'*/}
+          {/*    }}>*/}
+          {/*      <h3>Raw API Response (First Game):</h3>*/}
+          {/*      <pre style={{*/}
+          {/*        overflow: 'auto',*/}
+          {/*        maxHeight: '200px',*/}
+          {/*        background: '#e0e0e0',*/}
+          {/*        padding: '10px',*/}
+          {/*        borderRadius: '4px'*/}
+          {/*      }}>*/}
+          {/*  {JSON.stringify(data[0], null, 2)}*/}
+          {/*</pre>*/}
+          {/*    </div>*/}
+          {/*)}*/}
 
           {/* Game display section */}
-          {data && data.game && (
-              <div className="game-data">
-                <h2>Game Details</h2>
+          {data && data.length > 0 && (
+              <div className="games-container">
+                <h2>Games for {formatDate(data[0].game.date).split(',')[0]}</h2>
 
-                {data.game.teams && (
-                    <div className="teams-container">
-                      <div className="team home-team">
-                        <img
-                            src={data.game.teams.home.logo}
-                            alt={`${data.game.teams.home.name} logo`}
-                            className="team-logo"
-                        />
-                        <h3>{data.game.teams.home.name}</h3>
+                {data.map((gameData, index) => (
+                    <div key={gameData.game.id} className="game-data">
+                      <h2>Game {index + 1}</h2>
+
+                      {gameData.game.teams && (
+                          <div className="teams-container">
+                            <div className="team home-team">
+                              <img
+                                  src={gameData.game.teams.home.logo}
+                                  alt={`${gameData.game.teams.home.name} logo`}
+                                  className="team-logo"
+                              />
+                              <h3>{gameData.game.teams.home.name}</h3>
+                            </div>
+
+                            <div className="vs">VS</div>
+
+                            <div className="team away-team">
+                              <img
+                                  src={gameData.game.teams.away.logo}
+                                  alt={`${gameData.game.teams.away.name} logo`}
+                                  className="team-logo"
+                              />
+                              <h3>{gameData.game.teams.away.name}</h3>
+                            </div>
+                          </div>
+                      )}
+
+                      <div className="game-info">
+                        <p><strong>Date & Time:</strong> {formatDate(gameData.game.date)}</p>
+                        <p><strong>League:</strong> {gameData.game.league?.name} ({gameData.game.league?.season})</p>
+                        <p><strong>Status:</strong> {gameData.game.status?.long}</p>
                       </div>
 
-                      <div className="vs">VS</div>
-
-                      <div className="team away-team">
-                        <img
-                            src={data.game.teams.away.logo}
-                            alt={`${data.game.teams.away.name} logo`}
-                            className="team-logo"
-                        />
-                        <h3>{data.game.teams.away.name}</h3>
-                      </div>
+                      {gameData.odds && (
+                          <div className="odds-info">
+                            <h3>Betting Odds</h3>
+                            <p><strong>Home Spread:</strong> {gameData.odds.spreadHome} ({gameData.odds.spreadHomeOdds})</p>
+                            <p><strong>Away Spread:</strong> {gameData.odds.spreadAway} ({gameData.odds.spreadAwayOdds})</p>
+                            <p><strong>Home Moneyline:</strong> {gameData.odds.moneylineHome}</p>
+                            <p><strong>Away Moneyline:</strong> {gameData.odds.moneylineAway}</p>
+                          </div>
+                      )}
                     </div>
-                )}
-
-                <div className="game-info">
-                  <p><strong>Date & Time:</strong> {formatDate(data.game.date)}</p>
-                  <p><strong>League:</strong> {data.game.league?.name} ({data.game.league?.season})</p>
-                  <p><strong>Status:</strong> {data.game.status?.long}</p>
-                </div>
-
-                {data.odds && (
-                    <div className="odds-info">
-                      <h3>Betting Odds</h3>
-                      <p><strong>Home Spread:</strong> {data.odds.spreadHome} ({data.odds.spreadHomeOdds})</p>
-                      <p><strong>Away Spread:</strong> {data.odds.spreadAway} ({data.odds.spreadAwayOdds})</p>
-                      <p><strong>Home Moneyline:</strong> {data.odds.moneylineHome}</p>
-                      <p><strong>Away Moneyline:</strong> {data.odds.moneylineAway}</p>
-                    </div>
-                )}
+                ))}
               </div>
           )}
         </header>
