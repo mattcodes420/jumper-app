@@ -76,18 +76,42 @@ interface ApiData {
 }
 
 function App() {
-// Change this line:
   const [data, setData] = useState<ApiData[] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentDate, setCurrentDate] = useState<Date>(new Date());
+  const [isShowingTomorrow, setIsShowingTomorrow] = useState<boolean>(false);
+
+  // Function to toggle between today and tomorrow
+  const handleToggleDay = () => {
+    const newDate = new Date();
+    if (!isShowingTomorrow) {
+      // Show tomorrow
+      newDate.setDate(newDate.getDate() + 1);
+    }
+    // Otherwise show today (newDate is already set to today)
+
+    setCurrentDate(newDate);
+    setIsShowingTomorrow(!isShowingTomorrow);
+  };
+
+  // Format date for API call (YYYY-MM-DD)
+  const formatDateForApi = (date: Date) => {
+    return date.toISOString().split('T')[0];
+  };
+
+  // Function to handle viewing tomorrow's games
+  const handleViewTomorrowGames = () => {
+    const tomorrow = new Date(currentDate);
+    tomorrow.setDate(currentDate.getDate() + 1);
+    setCurrentDate(tomorrow);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-
-        const today = new Date();
-        const formattedDate = today.toISOString().split('T')[0];
+        const formattedDate = formatDateForApi(currentDate);
         const response = await fetch(`http://localhost:8081/jumper/schedule?date=${formattedDate}`);
 
         if (!response.ok) {
@@ -106,7 +130,7 @@ function App() {
     };
 
     fetchData();
-  }, []);
+  }, [currentDate]); // Re-fetch when currentDate changes
 
   // Format date to be more readable
   const formatDate = (dateString: string) => {
@@ -119,10 +143,38 @@ function App() {
     });
   };
 
+  // Format date for header display
+  const formatDateHeader = (dateString: string) => {
+    const date = new Date(dateString);
+    const datePart = date.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+
+    const timePart = date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
+    return `${datePart}`;
+  };
+
   return (
       <div className="App">
         <header className="App-header">
           <h1>Basketball Game Information</h1>
+
+          <div className="date-navigation">
+            <button
+                className="date-button"
+                onClick={handleToggleDay}
+                disabled={loading}
+            >
+              {isShowingTomorrow ? "Check today's games" : "Check tomorrow's games"}
+            </button>
+          </div>
 
           {loading && <p>Loading game data...</p>}
           {error && <p className="error">Error: {error}</p>}
@@ -130,7 +182,7 @@ function App() {
           {/* Game display section */}
           {data && data.length > 0 && (
               <div className="games-container">
-                <h2>Games for {formatDate(data[0].game.date)}</h2>
+                <h2>Games for {formatDateHeader(data[0].game.date)}</h2>
 
                 {data.map((gameData, index) => (
                     <div key={gameData.game.id} className="game-data">
@@ -178,6 +230,10 @@ function App() {
                     </div>
                 ))}
               </div>
+          )}
+
+          {data && data.length === 0 && (
+              <p>No games scheduled for this date.</p>
           )}
         </header>
       </div>

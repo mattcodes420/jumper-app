@@ -66,3 +66,30 @@
 .game-data:last-child {
   border-bottom: none;
 }
+
+.date-navigation {
+  margin: 20px 0;
+  display: flex;
+  justify-content: center;
+}
+
+.date-button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.date-button:hover {
+  background-color: #45a049;
+}
+
+.date-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
