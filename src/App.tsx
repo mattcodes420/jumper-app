@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import logo from './logo.svg';
 import './App.css';
 
 // Define types based on your API response structure
@@ -86,7 +85,10 @@ function App() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await fetch('http://localhost:8081/jumper/schedule?date=2025-03-03');
+
+        const today = new Date();
+        const formattedDate = today.toISOString().split('T')[0];
+        const response = await fetch(`http://localhost:8081/jumper/schedule?date=${formattedDate}`);
 
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -114,8 +116,6 @@ function App() {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
     });
   };
 
@@ -127,33 +127,10 @@ function App() {
           {loading && <p>Loading game data...</p>}
           {error && <p className="error">Error: {error}</p>}
 
-          {/*/!* Debug section *!/*/}
-          {/*{data && data.length > 0 && (*/}
-          {/*    <div className="debug-section" style={{*/}
-          {/*      textAlign: 'left',*/}
-          {/*      maxWidth: '800px',*/}
-          {/*      margin: '20px auto',*/}
-          {/*      backgroundColor: '#f5f5f5',*/}
-          {/*      padding: '20px',*/}
-          {/*      borderRadius: '8px'*/}
-          {/*    }}>*/}
-          {/*      <h3>Raw API Response (First Game):</h3>*/}
-          {/*      <pre style={{*/}
-          {/*        overflow: 'auto',*/}
-          {/*        maxHeight: '200px',*/}
-          {/*        background: '#e0e0e0',*/}
-          {/*        padding: '10px',*/}
-          {/*        borderRadius: '4px'*/}
-          {/*      }}>*/}
-          {/*  {JSON.stringify(data[0], null, 2)}*/}
-          {/*</pre>*/}
-          {/*    </div>*/}
-          {/*)}*/}
-
           {/* Game display section */}
           {data && data.length > 0 && (
               <div className="games-container">
-                <h2>Games for {formatDate(data[0].game.date).split(',')[0]}</h2>
+                <h2>Games for {formatDate(data[0].game.date)}</h2>
 
                 {data.map((gameData, index) => (
                     <div key={gameData.game.id} className="game-data">
