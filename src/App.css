@@ -140,26 +140,75 @@
 
 /* Mobile responsiveness */
 @media (max-width: 768px) {
+  html, body {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Ensures top content stays visible */
+    align-items: center;
+    overflow-x: hidden; /* Prevents horizontal scrolling */
+  }
+
+  .App {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .App-header {
+    transform: scale(0.92);
+    transform-origin: top center;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .logo-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .logo-container img {
+    width: 300px; /* Shrink logo */
+    height: auto;
+  }
+
+  .games-container {
+    width: 90%;
+    max-width: 700px; /* Ensure content doesn’t get too wide */
+  }
+
+  .game-data {
+    padding: 15px;
+    text-align: center;
+    max-width: 90%;
+  }
+
   .teams-container {
     flex-direction: column;
     align-items: center;
   }
 
   .team-logo {
-    width: 90px; /* Adjust logo size for mobile */
-    height: 90px;
+    width: 75px;
+    height: 75px;
   }
 
-  .game-data {
-    padding: 20px;
+  .date-navigation {
+    display: flex;
+    justify-content: center;
+    width: 100%;
   }
 
   .date-button {
-    padding: 10px 20px;
-  }
-
-  .logo-container img {
-    width: 300px; /* Adjust logo size for mobile */
-    height: 110px;
+    padding: 8px 16px;
+    font-size: 14px;
   }
 }
+
