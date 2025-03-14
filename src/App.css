@@ -157,4 +157,9 @@
   .date-button {
     padding: 10px 20px;
   }
+
+  .logo-container img {
+    width: 300px; /* Adjust logo size for mobile */
+    height: 110px;
+  }
 }
