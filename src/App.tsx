@@ -191,12 +191,10 @@ function App() {
           {/* Game display section */}
           {data && data.length > 0 && (
               <div className="games-container">
-                <h2>Games for {formatDateHeader(data[0].game.date)}</h2>
+                <h2 className="games-header">Games for {formatDateHeader(data[0].game.date)}</h2>
 
                 {data.map((gameData, index) => (
                     <div key={gameData.game.id} className="game-data">
-                      <h2>Game {index + 1}</h2>
-
                       {gameData.game.teams && (
                           <div className="teams-container">
                             <div className="team home-team">
