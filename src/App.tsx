@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
+import logo from './logo.png';
 
 // Define types based on your API response structure
 interface Team {
@@ -69,8 +70,13 @@ interface Odds {
   spreadAwayOdds: string;
 }
 
+interface Predictions {
+  prediction: string;
+  edge: string;
+}
+
 interface ApiData {
-  predictions: any | null;
+  predictions: Predictions | null;
   odds: Odds;
   game: Game;
 }
@@ -164,7 +170,10 @@ function App() {
   return (
       <div className="App">
         <header className="App-header">
-          <h1>Basketball Game Information</h1>
+
+          <div className="logo-container">
+            <img src={logo} alt="Logo" className="logo" />
+          </div>
 
           <div className="date-navigation">
             <button
@@ -221,12 +230,35 @@ function App() {
                       {gameData.odds && (
                           <div className="odds-info">
                             <h3>Betting Odds</h3>
-                            <p><strong>Home Spread:</strong> {gameData.odds.spreadHome} ({gameData.odds.spreadHomeOdds})</p>
-                            <p><strong>Away Spread:</strong> {gameData.odds.spreadAway} ({gameData.odds.spreadAwayOdds})</p>
+                            <p><strong>Home Spread:</strong> {gameData.odds.spreadHome}
+                              {gameData.odds.spreadHome !== "No odds currently available for this game" && (
+                                  <> ({gameData.odds.spreadHomeOdds})</>
+                              )}
+                            </p>
+                            <p><strong>Away Spread:</strong> {gameData.odds.spreadAway}
+                              {gameData.odds.spreadAway !== "No odds currently available for this game" && (
+                                  <> ({gameData.odds.spreadAwayOdds})</>
+                              )}
+                            </p>
                             <p><strong>Home Moneyline:</strong> {gameData.odds.moneylineHome}</p>
                             <p><strong>Away Moneyline:</strong> {gameData.odds.moneylineAway}</p>
                           </div>
                       )}
+
+                      {gameData.predictions ? (
+                          <div className="prediction-info">
+                            <h2>CONCLUSION</h2>
+                            <p><strong>Prediction:</strong> {gameData.predictions.prediction}</p>
+                            <p><strong>Edge:</strong> {gameData.predictions.edge}</p>
+                          </div>
+                      ) : (
+                          <div className="prediction-info">
+                            <h2>CONCLUSION</h2>
+                            <p><strong>No prediction available</strong></p>
+                            <p><strong>Edge:</strong> Not available</p>
+                          </div>
+                      )}
+
                     </div>
                 ))}
               </div>

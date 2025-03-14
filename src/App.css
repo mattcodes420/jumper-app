@@ -1,95 +1,160 @@
-/* Add to App.css */
+/* General App Layout */
 .App-header {
-  padding: 20px;
+  padding: 30px;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
+  background-color: #f9f9f9; /* Light background color to contrast with content */
+  font-family: 'Arial', sans-serif;
 }
 
+/* Game Data Container */
 .game-data {
-  background-color: #f0f0f0;
-  border-radius: 10px;
-  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 30px;
   margin-top: 20px;
   width: 100%;
-  max-width: 800px;
+  max-width: 900px;
   color: #333;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1); /* Soft shadow for depth */
 }
 
+/* Teams Container */
 .teams-container {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   align-items: center;
-  margin: 20px 0;
+  margin: 30px 0;
+  gap: 40px; /* Add space between teams */
 }
 
 .team {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 10px;
+  padding: 15px;
+  transition: transform 0.3s ease-in-out;
+}
+
+.team:hover {
+  transform: scale(1.05); /* Slight hover effect to make the teams interactive */
 }
 
 .team-logo {
-  width: 80px;
-  height: 80px;
+  width: 100px; /* Increased logo size for better visibility */
+  height: 100px;
   object-fit: contain;
+  margin-bottom: 10px;
 }
 
+/* VS Text Styling */
 .vs {
+  font-size: 32px;
+  font-weight: 600;
+  color: #FF9900;
+  letter-spacing: 2px;
   margin: 0 20px;
-  font-size: 24px;
-  font-weight: bold;
+  text-align: center;
+  text-transform: uppercase;
 }
 
+/* Game Info & Odds Info */
 .game-info, .odds-info {
   background-color: #ffffff;
-  padding: 15px;
-  border-radius: 8px;
-  margin: 15px 0;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 20px;
+  border-radius: 10px;
+  margin: 20px 0;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
-/* Add to App.css */
+.prediction-info {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 10px;
+  margin: 20px 0;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  border: 4px solid #FF9900; /* Dark orange border */
+}
+
+.game-info h2, .odds-info h2 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+/* Games Container */
 .games-container {
   width: 100%;
-  max-width: 800px;
+  max-width: 900px;
 }
 
+/* Game Data Divider */
 .game-data {
-  margin-bottom: 30px;
-  border-bottom: 1px solid #ddd;
-  padding-bottom: 20px;
+  margin-bottom: 40px;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 25px;
 }
 
+/* Last Game Data without Bottom Border */
 .game-data:last-child {
   border-bottom: none;
 }
 
+/* Date Navigation */
 .date-navigation {
-  margin: 20px 0;
+  margin: 30px 0;
   display: flex;
   justify-content: center;
+  gap: 15px; /* Add gap between buttons */
 }
 
 .date-button {
-  background-color: #4CAF50;
+  background-color: #FF9900; /* Basketball orange */
   color: white;
-  padding: 10px 20px;
+  padding: 12px 24px;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 16px;
-  font-weight: bold;
-  transition: background-color 0.3s;
+  font-size: 18px;
+  font-weight: 600;
+  transition: background-color 0.3s, transform 0.3s;
+  display: inline-block;
 }
 
 .date-button:hover {
-  background-color: #45a049;
+  background-color: #e65c00; /* Slightly darker shade for hover */
+  transform: translateY(-2px); /* Subtle hover effect */
+}
+
+.date-button:active {
+  transform: translateY(1px); /* Adds a press effect */
 }
 
 .date-button:disabled {
   background-color: #cccccc;
   cursor: not-allowed;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .teams-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .team-logo {
+    width: 90px; /* Adjust logo size for mobile */
+    height: 90px;
+  }
+
+  .game-data {
+    padding: 20px;
+  }
+
+  .date-button {
+    padding: 10px 20px;
+  }
 }
