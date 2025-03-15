@@ -218,8 +218,8 @@ function App() {
       try {
         setLoading(true);
         const formattedDate = formatDateForApi(currentDate);
-        //const response = await fetch(`https://jumper-api-production.up.railway.app/jumper/schedule?date=${formattedDate}`);
-        const response = await fetch(`http://localhost:8080/jumper/schedule?date=${formattedDate}`); // for local
+        const response = await fetch(`https://jumper-api-production.up.railway.app/jumper/schedule?date=${formattedDate}`);
+        //const response = await fetch(`http://localhost:8080/jumper/schedule?date=${formattedDate}`); // for local
 
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
