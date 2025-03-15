@@ -207,6 +207,14 @@
   color: #555;
 }
 
+.logo-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  margin-left: 3%;
+}
+
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   html, body {
