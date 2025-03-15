@@ -71,8 +71,8 @@ interface Odds {
 }
 
 interface Predictions {
-  prediction: string;
-  edge: string;
+  moneylinePrediction: string;
+  spreadPrediction: string;
 }
 
 interface ApiData {
@@ -159,14 +159,13 @@ const GameSection: React.FC<{
               {gameData.predictions ? (
                   <div className="prediction-info">
                     <h2>CONCLUSION</h2>
-                    <p><strong>Prediction:</strong> {gameData.predictions.prediction}</p>
-                    <p><strong>Edge:</strong> {gameData.predictions.edge}</p>
+                    <p><strong>Moneyline Prediction:</strong> {gameData.predictions.moneylinePrediction}</p>
+                    <p><strong>Spread Prediction:</strong> {gameData.predictions.spreadPrediction}</p>
                   </div>
               ) : (
                   <div className="prediction-info">
                     <h2>CONCLUSION</h2>
-                    <p><strong>No prediction available</strong></p>
-                    <p><strong>Edge:</strong> Not available</p>
+                    <p><strong>No predictions available</strong></p>
                   </div>
               )}
             </div>
@@ -219,7 +218,8 @@ function App() {
       try {
         setLoading(true);
         const formattedDate = formatDateForApi(currentDate);
-        const response = await fetch(`https://jumper-api-production.up.railway.app/jumper/schedule?date=${formattedDate}`);
+        //const response = await fetch(`https://jumper-api-production.up.railway.app/jumper/schedule?date=${formattedDate}`);
+        const response = await fetch(`http://localhost:8080/jumper/schedule?date=${formattedDate}`); // for local
 
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
