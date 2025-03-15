@@ -81,12 +81,107 @@ interface ApiData {
   game: Game;
 }
 
+// Add this component above your App function
+const GameSection: React.FC<{
+  title: string;
+  games: ApiData[];
+  defaultExpanded: boolean;
+  formatDate: (dateString: string) => string;
+}> = ({ title, games, defaultExpanded, formatDate }) => {
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
+
+  return (
+      <div className="game-section">
+        <div
+            className="section-header"
+            onClick={() => setIsExpanded(!isExpanded)}
+        >
+          <h2>{title} ({games.length})</h2>
+          <span className="toggle-icon">{isExpanded ? '▼' : '►'}</span>
+        </div>
+
+        {isExpanded && games.map((gameData, index) => (
+            <div
+                key={gameData.game.id}
+                className={`game-data status-${gameData.game.status.long.toLowerCase().replace(/\s+/g, '-')}`}
+            >
+              <h3>Game {index + 1}</h3>
+
+              {/* Rest of your game display code */}
+              {gameData.game.teams && (
+                  <div className="teams-container">
+                    <div className="team home-team">
+                      <img
+                          src={gameData.game.teams.home.logo}
+                          alt={`${gameData.game.teams.home.name} logo`}
+                          className="team-logo"
+                      />
+                      <h3>{gameData.game.teams.home.name}</h3>
+                    </div>
+
+                    <div className="vs">VS</div>
+
+                    <div className="team away-team">
+                      <img
+                          src={gameData.game.teams.away.logo}
+                          alt={`${gameData.game.teams.away.name} logo`}
+                          className="team-logo"
+                      />
+                      <h3>{gameData.game.teams.away.name}</h3>
+                    </div>
+                  </div>
+              )}
+
+              <div className="game-info">
+                <p><strong>Date & Time:</strong> {formatDate(gameData.game.date)}</p>
+                <p><strong>League:</strong> {gameData.game.league?.name} ({gameData.game.league?.season})</p>
+                <p><strong>Status:</strong> {gameData.game.status?.long}</p>
+              </div>
+
+              {gameData.odds && (
+                  <div className="odds-info">
+                    <h3>Betting Odds</h3>
+                    <p><strong>Home Spread:</strong> {gameData.odds.spreadHome}
+                      {gameData.odds.spreadHome !== "No odds currently available for this game" && (
+                          <> ({gameData.odds.spreadHomeOdds})</>
+                      )}
+                    </p>
+                    <p><strong>Away Spread:</strong> {gameData.odds.spreadAway}
+                      {gameData.odds.spreadAway !== "No odds currently available for this game" && (
+                          <> ({gameData.odds.spreadAwayOdds})</>
+                      )}
+                    </p>
+                    <p><strong>Home Moneyline:</strong> {gameData.odds.moneylineHome}</p>
+                    <p><strong>Away Moneyline:</strong> {gameData.odds.moneylineAway}</p>
+                  </div>
+              )}
+
+              {gameData.predictions ? (
+                  <div className="prediction-info">
+                    <h2>CONCLUSION</h2>
+                    <p><strong>Prediction:</strong> {gameData.predictions.prediction}</p>
+                    <p><strong>Edge:</strong> {gameData.predictions.edge}</p>
+                  </div>
+              ) : (
+                  <div className="prediction-info">
+                    <h2>CONCLUSION</h2>
+                    <p><strong>No prediction available</strong></p>
+                    <p><strong>Edge:</strong> Not available</p>
+                  </div>
+              )}
+            </div>
+        ))}
+      </div>
+  );
+};
+
 function App() {
   const [data, setData] = useState<ApiData[] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [isShowingTomorrow, setIsShowingTomorrow] = useState<boolean>(false);
+  const [hideCompletedGames, setHideCompletedGames] = useState<boolean>(false);
 
   // Function to toggle between today and tomorrow
   const handleToggleDay = () => {
@@ -117,13 +212,6 @@ function App() {
     // Convert from MM/DD/YYYY to YYYY-MM-DD
     const [month, day, year] = pstDate.split('/');
     return `${year}-${month}-${day}`;
-  };
-
-  // Function to handle viewing tomorrow's games
-  const handleViewTomorrowGames = () => {
-    const tomorrow = new Date(currentDate);
-    tomorrow.setDate(currentDate.getDate() + 1);
-    setCurrentDate(tomorrow);
   };
 
   useEffect(() => {
@@ -172,13 +260,71 @@ function App() {
       day: 'numeric'
     });
 
-    const timePart = date.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-
     return `${datePart}`;
   };
+
+  const sortedGames = React.useMemo(() => {
+    if (!data) return [];
+
+    return [...data].sort((a, b) => {
+      // More precise status detection
+      const getStatusPriority = (game: ApiData) => {
+        const status = game.game.status.long;
+
+        // Check for live games first (various ways it might be indicated)
+        if (status.includes('In Progress') || status.includes('Live') ||
+            status.includes('Quarter') || status.includes('Half')) {
+          return 0;
+        }
+
+        // Check for finished/completed games
+        if (status.includes('Finished') || status.includes('Ended') ||
+            status.includes('Complete')) {
+          return 2;
+        }
+
+        // All other statuses are considered upcoming
+        return 1;
+      };
+
+      const priorityA = getStatusPriority(a);
+      const priorityB = getStatusPriority(b);
+
+      // If same priority, sort by time
+      if (priorityA === priorityB) {
+        return new Date(a.game.timestamp).getTime() - new Date(b.game.timestamp).getTime();
+      }
+
+      return priorityA - priorityB;
+    });
+  }, [data]);
+
+  // Group games by status
+  const gamesByStatus = React.useMemo(() => {
+    if (!data) return {};
+
+    // Create groups with proper ordering
+    const groups: {[key: string]: ApiData[]} = {
+      'Live Games': [],
+      'Upcoming Games': [],
+      'Completed Games': []
+    };
+
+    sortedGames.forEach(game => {
+      const status = game.game.status.long;
+      if (status.includes('In Progress') || status.includes('Live') ||
+          status.includes('Quarter') || status.includes('Half')) {
+        groups['Live Games'].push(game);
+      } else if (status.includes('Finished') || status.includes('Ended') ||
+          status.includes('Complete')) {
+        groups['Completed Games'].push(game);
+      } else {
+        groups['Upcoming Games'].push(game);
+      }
+    });
+
+    return groups;
+  }, [sortedGames, data]);
 
   return (
       <div className="App">
@@ -206,74 +352,50 @@ function App() {
               <div className="games-container">
                 <h2>Games for {formatDateHeader(data[0].game.date)}</h2>
 
-                {data.map((gameData, index) => (
-                    <div key={gameData.game.id} className="game-data">
-                      <h2>Game {index + 1}</h2>
+                <div className="game-controls">
+                  {(!isShowingTomorrow || gamesByStatus['Completed Games']?.length > 0) && (
+                      <button
+                          className="toggle-button"
+                          onClick={() => setHideCompletedGames(!hideCompletedGames)}
+                      >
+                        {hideCompletedGames ? "Show completed games" : "Hide completed games"}
+                      </button>
+                  )}
+                </div>
 
-                      {gameData.game.teams && (
-                          <div className="teams-container">
-                            <div className="team home-team">
-                              <img
-                                  src={gameData.game.teams.home.logo}
-                                  alt={`${gameData.game.teams.home.name} logo`}
-                                  className="team-logo"
-                              />
-                              <h3>{gameData.game.teams.home.name}</h3>
-                            </div>
+                {/* Live Games Section */}
+                {gamesByStatus['Live Games']?.length > 0 && (
+                    <GameSection
+                        title="🔴 Live Games"
+                        games={gamesByStatus['Live Games']}
+                        defaultExpanded={true}
+                        formatDate={formatDate}
+                    />
+                )}
 
-                            <div className="vs">VS</div>
+                {/* Upcoming Games Section */}
+                {gamesByStatus['Upcoming Games']?.length > 0 && (
+                    <GameSection
+                        title="🕒 Upcoming Games"
+                        games={gamesByStatus['Upcoming Games']}
+                        defaultExpanded={true}
+                        formatDate={formatDate}
+                    />
+                )}
 
-                            <div className="team away-team">
-                              <img
-                                  src={gameData.game.teams.away.logo}
-                                  alt={`${gameData.game.teams.away.name} logo`}
-                                  className="team-logo"
-                              />
-                              <h3>{gameData.game.teams.away.name}</h3>
-                            </div>
-                          </div>
-                      )}
+                {/* Completed Games Section */}
+                {!hideCompletedGames && gamesByStatus['Completed Games']?.length > 0 && (
+                    <GameSection
+                        title="✓ Completed Games"
+                        games={gamesByStatus['Completed Games']}
+                        defaultExpanded={false}
+                        formatDate={formatDate}
+                    />
+                )}
 
-                      <div className="game-info">
-                        <p><strong>Date & Time:</strong> {formatDate(gameData.game.date)}</p>
-                        <p><strong>League:</strong> {gameData.game.league?.name} ({gameData.game.league?.season})</p>
-                        <p><strong>Status:</strong> {gameData.game.status?.long}</p>
-                      </div>
-
-                      {gameData.odds && (
-                          <div className="odds-info">
-                            <h3>Betting Odds</h3>
-                            <p><strong>Home Spread:</strong> {gameData.odds.spreadHome}
-                              {gameData.odds.spreadHome !== "No odds currently available for this game" && (
-                                  <> ({gameData.odds.spreadHomeOdds})</>
-                              )}
-                            </p>
-                            <p><strong>Away Spread:</strong> {gameData.odds.spreadAway}
-                              {gameData.odds.spreadAway !== "No odds currently available for this game" && (
-                                  <> ({gameData.odds.spreadAwayOdds})</>
-                              )}
-                            </p>
-                            <p><strong>Home Moneyline:</strong> {gameData.odds.moneylineHome}</p>
-                            <p><strong>Away Moneyline:</strong> {gameData.odds.moneylineAway}</p>
-                          </div>
-                      )}
-
-                      {gameData.predictions ? (
-                          <div className="prediction-info">
-                            <h2>CONCLUSION</h2>
-                            <p><strong>Prediction:</strong> {gameData.predictions.prediction}</p>
-                            <p><strong>Edge:</strong> {gameData.predictions.edge}</p>
-                          </div>
-                      ) : (
-                          <div className="prediction-info">
-                            <h2>CONCLUSION</h2>
-                            <p><strong>No prediction available</strong></p>
-                            <p><strong>Edge:</strong> Not available</p>
-                          </div>
-                      )}
-
-                    </div>
-                ))}
+                {Object.values(gamesByStatus).flat().length === 0 && (
+                    <p>No games available for this date.</p>
+                )}
               </div>
           )}
 
