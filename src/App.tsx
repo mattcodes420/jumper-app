@@ -103,7 +103,20 @@ function App() {
 
   // Format date for API call (YYYY-MM-DD)
   const formatDateForApi = (date: Date) => {
-    return date.toISOString().split('T')[0];
+    // Format date in PST/PDT timezone
+    const options: Intl.DateTimeFormatOptions = {
+      timeZone: 'America/Los_Angeles',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    };
+
+    // Get date parts in PST
+    const pstDate = new Intl.DateTimeFormat('en-US', options).format(date);
+
+    // Convert from MM/DD/YYYY to YYYY-MM-DD
+    const [month, day, year] = pstDate.split('/');
+    return `${year}-${month}-${day}`;
   };
 
   // Function to handle viewing tomorrow's games
