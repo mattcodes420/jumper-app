@@ -213,6 +213,12 @@
   justify-content: center;
   margin-bottom: 20px;
   margin-left: 3%;
+  filter: hue-rotate(-7.25deg); /* Adjust the hue to shift pink to orange */
+}
+
+.logo-container img {
+  width: 50%; /* Shrink logo */
+  height: auto;
 }
 
 /* Mobile responsiveness */
