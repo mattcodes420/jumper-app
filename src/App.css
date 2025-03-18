@@ -217,7 +217,7 @@
 }
 
 .logo-container img {
-  width: 50%; /* Shrink logo */
+  width: 50% !important; /* Shrink logo */
   height: auto;
 }
 
