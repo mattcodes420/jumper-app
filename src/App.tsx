@@ -80,7 +80,21 @@ interface ApiData {
   odds: Odds;
   game: Game;
 }
+const badLogos: Record<string, string> = {
+  "Clemson": "/logos/clemson.png",
+  "Houston": "/logos/houston.png",
+  "Kansas": "/logos/Kansas.png",
+  "Wisconsin": "/logos/wisconsin.png",
+  "Tennessee": "/logos/tenn.png",
+  "Arkansas": "/logos/arkansas.png",
+  "Texas A&M": "/logos/texasam.png",
+  "Missouri": "/logos/missouri.png",
+  "St. John's (N.Y.)": "/logos/stjohns.png",
+};
 
+const getTeamLogo = (team: Team) => {
+  return badLogos[team.name] || team.logo || "/logos/default.png";
+};
 // Add this component above your App function
 const GameSection: React.FC<{
   title: string;
@@ -107,30 +121,29 @@ const GameSection: React.FC<{
             >
               <h3>Game {index + 1}</h3>
 
-              {/* Rest of your game display code */}
-              {gameData.game.teams && (
-                  <div className="teams-container">
-                    <div className="team home-team">
-                      <img
-                          src={gameData.game.teams.home.logo}
-                          alt={`${gameData.game.teams.home.name} logo`}
-                          className="team-logo"
-                      />
-                      <h3>{gameData.game.teams.home.name}</h3>
-                    </div>
-
-                    <div className="vs">VS</div>
-
-                    <div className="team away-team">
-                      <img
-                          src={gameData.game.teams.away.logo}
-                          alt={`${gameData.game.teams.away.name} logo`}
-                          className="team-logo"
-                      />
-                      <h3>{gameData.game.teams.away.name}</h3>
-                    </div>
+              {/* Rest of your game display code */}{gameData.game.teams && (
+                <div className="teams-container">
+                  <div className="team home-team">
+                    <img
+                        src={getTeamLogo(gameData.game.teams.home)}
+                        alt={`${gameData.game.teams.home.name} logo`}
+                        className="team-logo"
+                    />
+                    <h3>{gameData.game.teams.home.name}</h3>
                   </div>
-              )}
+
+                  <div className="vs">VS</div>
+
+                  <div className="team away-team">
+                    <img
+                        src={getTeamLogo(gameData.game.teams.away)}
+                        alt={`${gameData.game.teams.away.name} logo`}
+                        className="team-logo"
+                    />
+                    <h3>{gameData.game.teams.away.name}</h3>
+                  </div>
+                </div>
+            )}
 
               <div className="game-info">
                 <p><strong>Date & Time:</strong> {formatDate(gameData.game.date)}</p>
