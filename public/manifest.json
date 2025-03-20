@@ -1,11 +1,16 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Bankshot.io",
+  "name": "Bankshot.io",
   "icons": [
     {
-      "src": "favicon.ico",
+      "src": "basketballLogo32.png",
       "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
+      "type": "image/png"
+    },
+    {
+      "src": "basketballLogo100.png",
+      "type": "image/png",
+      "sizes": "100x100"
     },
     {
       "src": "logo192.png",
